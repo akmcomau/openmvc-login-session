@@ -2,12 +2,20 @@
 	"name": "Login Sessions",
 	"description": "Support for tracking and adding restrictions to login sessions",
 	"namespace": "\\modules\\login_session",
-	"config_controller": "administrator\\LoginSession",
+	"config_controller": "administrator\\LoginSessions",
 	"controllers": [
-		"administrator\\LoginSession"
+		"administrator\\LoginSessions"
 	],
+	"hooks": {
+		"authentication": {
+			"init_authentication": "classes\\Hooks",
+			"after_loginCustomer": "classes\\Hooks",
+			"after_loginAdministrator": "classes\\Hooks",
+			"after_logoutCustomer": "classes\\Hooks",
+			"after_logoutAdministrator": "classes\\Hooks"
+		}
+	},
 	"default_config": {
-		"concurrent_sessions": 0,
 		"time_to_live": 3600
 	}
 }
