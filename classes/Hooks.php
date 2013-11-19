@@ -22,6 +22,10 @@ class Hooks extends Hook {
 				$auth->logoutCustomer(FALSE);
 				throw new RedirectException($this->url->getUrl('Customer', 'login').'?expired=1');
 			}
+			else {
+				$login_session->updated = date('c');
+				$login_session->update();
+			}
 		}
 		else {
 			$auth->logoutCustomer(FALSE);
@@ -34,6 +38,10 @@ class Hooks extends Hook {
 			if (!$login_session->isValid()) {
 				$auth->logoutAdministrator(FALSE);
 				throw new RedirectException($this->url->getUrl('Administrator', 'login').'?expired=1');
+			}
+			else {
+				$login_session->updated = date('c');
+				$login_session->update();
 			}
 		}
 		else {
@@ -53,6 +61,7 @@ class Hooks extends Hook {
 		$login_session->session_id = session_id();
 		$login_session->created = date('c');
 		$login_session->updated = date('c');
+		$login_session->ip = $this->request->serverParam('REMOTE_ADDR');
 		$login_session->insert();
 	}
 
@@ -68,6 +77,7 @@ class Hooks extends Hook {
 		$login_session->session_id = session_id();
 		$login_session->created = date('c');
 		$login_session->updated = date('c');
+		$login_session->ip = $this->request->serverParam('REMOTE_ADDR');
 		$login_session->insert();
 	}
 

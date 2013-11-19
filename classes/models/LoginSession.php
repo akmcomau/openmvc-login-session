@@ -20,6 +20,11 @@ class LoginSession extends Model {
 			'data_length'    => '64',
 			'null_allowed'   => FALSE,
 		],
+		'login_session_ip' => [
+			'data_type'      => 'text',
+			'data_length'    => '32',
+			'null_allowed'   => FALSE,
+		],
 		'login_session_logged_out' => [
 			'data_type'      => 'bool',
 			'null_allowed'   => FALSE,
