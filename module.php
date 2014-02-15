@@ -17,7 +17,9 @@ $_MODULE = [
 		]
 	],
 	"default_config" => [
-		"time_to_live" => 3600
+		"time_to_live" => 3600,
+		"admin_concurrency" => 1,
+		"customer_concurrency" => 1,
 	]
 ];
 

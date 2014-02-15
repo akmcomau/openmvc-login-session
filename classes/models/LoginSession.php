@@ -69,7 +69,7 @@ class LoginSession extends Model {
 	];
 
 	public function getCustomerSession($session_id) {
-		$module_config = $this->config->moduleConfig('Login Sessions');
+		$module_config = $this->config->moduleConfig('\modules\login_session');
 		$ttl = $module_config->time_to_live;
 		$date = $this->database->quote(date('c', strtotime("now - $ttl seconds")));
 		$sql = "
@@ -95,7 +95,7 @@ class LoginSession extends Model {
 	}
 
 	public function getAdministratorSession($session_id) {
-		$module_config = $this->config->moduleConfig('Login Sessions');
+		$module_config = $this->config->moduleConfig('\modules\login_session');
 		$ttl = $module_config->time_to_live;
 		$date = $this->database->quote(date('c', strtotime("now - $ttl seconds")));
 		$sql = "
@@ -121,7 +121,7 @@ class LoginSession extends Model {
 	}
 
 	public function getForCustomer($customer_id) {
-		$module_config = $this->config->moduleConfig('Login Sessions');
+		$module_config = $this->config->moduleConfig('\modules\login_session');
 		$ttl = $module_config->time_to_live;
 		$date = $this->database->quote(date('c', strtotime("now - $ttl seconds")));
 		$sql = "
@@ -146,7 +146,14 @@ class LoginSession extends Model {
 	}
 
 	public function kickCustomer($customer_id) {
-		$module_config = $this->config->moduleConfig('Login Sessions');
+		$module_config = $this->config->moduleConfig('\modules\login_session');
+
+		// Get login session concurrency
+		$concurrency = $this->callHook('loginsession_customer_concurrency', $customer_id);
+		if (!$concurrency) {
+			$concurrency = $module_config->customer_concurrency;
+		}
+
 		$sql = "
 			UPDATE login_session
 				SET login_session_kicked = TRUE
@@ -154,12 +161,20 @@ class LoginSession extends Model {
 				customer_id = ".$this->database->quote($customer_id)."
 				AND NOT login_session_kicked
 				AND NOT login_session_logged_out
+			-- where not in the most N recent sessions
 		";
 		return $this->database->executeQuery($sql);
 	}
 
 	public function kickAdministrator($admin_id) {
-		$module_config = $this->config->moduleConfig('Login Sessions');
+		$module_config = $this->config->moduleConfig('\modules\login_session');
+
+		// Get login session concurrency
+		$concurrency = $this->callHook('loginsession_admin_concurrency', $admin_id);
+		if (!$concurrency) {
+			$concurrency = $module_config->admin_concurrency;
+		}
+
 		$sql = "
 			UPDATE login_session
 				SET login_session_kicked = TRUE
@@ -167,12 +182,13 @@ class LoginSession extends Model {
 				administrator_id = ".$this->database->quote($admin_id)."
 				AND NOT login_session_kicked
 				AND NOT login_session_logged_out
+			-- where not in the most N recent sessions
 		";
 		return $this->database->executeQuery($sql);
 	}
 
 	public function isValid() {
-		$module_config = $this->config->moduleConfig('Login Sessions');
+		$module_config = $this->config->moduleConfig('\modules\login_session');
 		$ttl = $module_config->time_to_live;
 		if ($this->login_session_logged_out || $this->login_session_kicked) {
 			return FALSE;
